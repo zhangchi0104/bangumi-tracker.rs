@@ -1,0 +1,6 @@
+[workspace]
+
+members = [
+    "bangumi_tracker",
+    "bangumi_tracker_derive", 
+]
