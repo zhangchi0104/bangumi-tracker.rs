@@ -1,10 +1,15 @@
 use crate::models::responses::{BangumiSearchResponse, CurrentSeasonBangumiResponse};
-use crate::Result;
+use crate::{FromEnv, FromEnvDefault, Result};
 
 mod bangumi_moe;
 
 pub enum BangumiSource {
     BangumiMoe,
+}
+impl Default for BangumiSource {
+    fn default() -> Self {
+        BangumiSource::BangumiMoe
+    }
 }
 
 impl BangumiSource {
@@ -27,3 +32,14 @@ impl BangumiSource {
         .await
     }
 }
+impl FromEnv for BangumiSource {
+    fn from_env() -> std::result::Result<Self, std::env::VarError> {
+        let source_str = std::env::var("KEI_BANGUMI_SOURCE")?;
+        let source = match source_str.as_str() {
+            _ => BangumiSource::BangumiMoe,
+        };
+        Ok(source)
+    }
+}
+
+impl FromEnvDefault for BangumiSource {}

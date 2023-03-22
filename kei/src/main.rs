@@ -9,20 +9,22 @@ pub mod models;
 pub mod routes;
 pub mod sources;
 pub mod state;
-
-pub type Result<T> = std::result::Result<T, Error>;
+pub(crate) mod utils;
+pub use utils::*;
+pub type Result<T, E = Error> = std::result::Result<T, E>;
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
+    dotenv::dotenv().ok();
     env_logger::init_from_env(Env::default().default_filter_or("info"));
-    HttpServer::new(|| {
+    HttpServer::new(move || {
         App::new()
             .wrap(Logger::default())
             .configure(routes::configure)
-            .app_data(web::Data::new(state::AppState::new()))
+            .app_data(web::Data::new(state::AppState::from_env_or_default()))
     })
     .bind(("127.0.0.1", 8080))
-    .expect("Unable to start server")
+    .expect("Unable to start server: ")
     .run()
     .await
 }

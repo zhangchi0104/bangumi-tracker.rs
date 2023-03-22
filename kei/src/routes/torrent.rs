@@ -1,4 +1,5 @@
 use crate::{
+    derive_configure,
     models::{requests::TorrentSearchQuery, responses::BangumiSearchResponse},
     state::AppState,
     Result,
@@ -6,7 +7,7 @@ use crate::{
 use actix_web::{get, web};
 #[get("/search")]
 async fn search_torrent(
-    state: web::Data<AppState>,
+    state: web::Data<AppState<'_>>,
     query: web::Query<TorrentSearchQuery>,
 ) -> Result<BangumiSearchResponse> {
     state
@@ -14,7 +15,4 @@ async fn search_torrent(
         .search_torrent(query.query.as_str(), query.page_index, query.page_size)
         .await
 }
-
-pub(super) fn configure(cfg: &mut web::ServiceConfig) {
-    cfg.service(web::scope("/torrent").service(search_torrent));
-}
+derive_configure!("/torrent", search_torrent);

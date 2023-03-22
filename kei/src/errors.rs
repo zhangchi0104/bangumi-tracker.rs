@@ -72,6 +72,7 @@ pub trait LogError<T, E> {
     fn map_logged_err<U, F>(self, op: F) -> Result<T, U>
     where
         F: FnOnce(E) -> U;
+    fn log_err(self) -> Result<T, E>;
 }
 
 impl<T, E> LogError<T, E> for std::result::Result<T, E>
@@ -89,5 +90,12 @@ where
                 Err(op(e))
             }
         }
+    }
+
+    fn log_err(self) -> Result<T, E> {
+        if let Err(e) = &self {
+            log::error!("{e:?}");
+        }
+        self
     }
 }
